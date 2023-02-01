@@ -21,6 +21,7 @@ def generate_launch_description():
             os.path.join(
                 get_package_share_directory("lbr_description"),
                 "urdf",
+                "med7",
                 "med7.urdf.xacro",
             ),
             mappings={
@@ -38,17 +39,19 @@ def generate_launch_description():
         package="controller_manager",
         executable="ros2_control_node",
         parameters=[robot_description, controller_configurations],
+        output="screen",
     )
 
     # joint state broadcaster
     joint_state_broadcaster_spawner = Node(
         package="controller_manager",
-        executable="spawner",
+        executable="spawner.py",
         arguments=[
             "joint_state_broadcaster",
             "--controller-manager",
             "/controller_manager",
         ],
+        output="screen",
     )
 
     # robot state publisher
@@ -56,19 +59,25 @@ def generate_launch_description():
         package="robot_state_publisher",
         executable="robot_state_publisher",
         parameters=[robot_description],
+        output="screen",
     )
 
     # rviz2
+    rviz2_config = os.path.join(
+        get_package_share_directory("trajectory_recording"), "config", "config.rviz"
+    )
     rviz2_node = Node(
         package="rviz2",
         executable="rviz2",
-        parameters=[robot_description],
+        output="screen",
+        arguments=["-d", rviz2_config],
     )
 
-    # admittance_node = Node(
-    #     package="lbr_examples",
-    #     executable="admittance_control_node.py",
-    # )
+    # admittance control noe
+    admittance_node = Node(
+        package="lbr_examples",
+        executable="admittance_control_node.py",
+    )
 
     return LaunchDescription(
         [
@@ -77,5 +86,6 @@ def generate_launch_description():
             joint_state_broadcaster_spawner,
             robot_state_publisher_node,
             rviz2_node,
+            admittance_node,
         ]
     )
