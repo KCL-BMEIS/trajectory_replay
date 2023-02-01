@@ -79,6 +79,13 @@ def generate_launch_description():
         executable="admittance_control_node.py",
     )
 
+    # link transform publisher node
+    link_transform_publisher_node = Node(
+        package="trajectory_recording",
+        executable="link_transform_publisher_node.py",
+        output="screen",
+    )
+
     return LaunchDescription(
         [
             lbr_spinner_node,
@@ -87,5 +94,6 @@ def generate_launch_description():
             robot_state_publisher_node,
             rviz2_node,
             admittance_node,
+            link_transform_publisher_node,
         ]
     )
