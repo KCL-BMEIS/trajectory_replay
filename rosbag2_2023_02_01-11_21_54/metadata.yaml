@@ -1,0 +1,25 @@
+rosbag2_bagfile_information:
+  version: 4
+  storage_identifier: sqlite3
+  relative_file_paths:
+    - rosbag2_2023_02_01-11_21_54_0.db3
+  duration:
+    nanoseconds: 7091233351
+  starting_time:
+    nanoseconds_since_epoch: 1675250514758119807
+  message_count: 5683
+  topics_with_message_count:
+    - topic_metadata:
+        name: /joint_states
+        type: sensor_msgs/msg/JointState
+        serialization_format: cdr
+        offered_qos_profiles: ""
+      message_count: 2839
+    - topic_metadata:
+        name: /link_transform_publisher_node/link_transform
+        type: geometry_msgs/msg/TransformStamped
+        serialization_format: cdr
+        offered_qos_profiles: ""
+      message_count: 2844
+  compression_format: ""
+  compression_mode: ""
