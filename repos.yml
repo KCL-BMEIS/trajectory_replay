@@ -1,0 +1,13 @@
+repositories:
+  fri:
+    url: https://github.com/KCL-BMEIS/fri.git
+    type: git
+    version: ros2_hwi-dev
+  lbr_fri_ros2_stack:
+    url: https://github.com/KCL-BMEIS/lbr_fri_ros2_stack.git
+    type: git
+    version: foxy
+  trajectory_replay:
+    url: https://github.com/RViMLab/trajectory_replay.git
+    type: git
+    version: main
