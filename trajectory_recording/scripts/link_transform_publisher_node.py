@@ -59,7 +59,7 @@ class LinkTransformPublisherNode(Node):
 
 def main(args=None) -> None:
     rclpy.init(args=args)
-    node = LinkTransformPublisherNode("end_effector_pose_publisher_node")
+    node = LinkTransformPublisherNode("link_transform_publisher_node")
     rclpy.spin(node)
     rclpy.shutdown()
 
