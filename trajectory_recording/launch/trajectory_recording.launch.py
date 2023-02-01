@@ -83,6 +83,7 @@ def generate_launch_description():
     link_transform_publisher_node = Node(
         package="trajectory_recording",
         executable="link_transform_publisher_node.py",
+        parameters=[robot_description],
         output="screen",
     )
 

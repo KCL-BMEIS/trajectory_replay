@@ -1,5 +1,8 @@
+#!/usr/bin/python3
+
 import rclpy
 from geometry_msgs.msg import TransformStamped
+from rclpy.duration import Duration
 from rclpy.node import Node
 from rclpy.qos import qos_profile_system_default
 from sensor_msgs.msg import JointState
@@ -10,14 +13,12 @@ from tf2_ros.transform_listener import TransformListener
 class LinkTransformPublisherNode(Node):
     def __init__(self, node_name: str):
         super().__init__(node_name)
-        self.tf_buffer = Buffer()
-        self.transform_listener = TransformListener(self.tf_buffer, self)
 
         self.declare_parameters(
             namespace="",
             parameters=[
-                ("source_frame", "world"),
-                ("target_frame", "lbr_link_ee"),
+                ("source_frame", "lbr_link_ee"),
+                ("target_frame", "world"),
             ],
         )
 
@@ -27,6 +28,9 @@ class LinkTransformPublisherNode(Node):
         self.target_frame = (
             self.get_parameter("target_frame").get_parameter_value().string_value
         )
+
+        self.tf_buffer = Buffer()
+        self.transform_listener = TransformListener(self.tf_buffer, self)
 
         self.joint_states_subscription = self.create_subscription(
             JointState,
@@ -40,10 +44,17 @@ class LinkTransformPublisherNode(Node):
         )
 
     def joint_states_callback(self, joint_states: JointState) -> None:
-        tf_stamped = self.tf_buffer.lookup_transform(
-            self.target_frame, self.source_frame, 0
-        )
-        self.link_transform_publisher.publish(tf_stamped)
+        try:
+            tf_stamped = self.tf_buffer.lookup_transform(
+                self.target_frame,
+                self.source_frame,
+                Duration(seconds=0, nanoseconds=0),
+            )
+            self.link_transform_publisher.publish(tf_stamped)
+        except Exception as e:
+            self.get_logger().warn(
+                f"Failed to lookup transform from {self.source_frame} to {self.target_frame}. Error: \n{e}"
+            )
 
 
 def main(args=None) -> None:
