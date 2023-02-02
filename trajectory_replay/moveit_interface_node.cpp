@@ -8,7 +8,8 @@
 class MoveItInterfaceNode : public rclcpp::Node {
 
 public:
-  MoveItInterfaceNode(const std::string &node_name = "moveit_interface_node") : Node(node_name) {
+  MoveItInterfaceNode(const std::string &node_name, const rclcpp::NodeOptions &node_options)
+      : Node(node_name, node_options) {
 
     this->declare_parameter<std::string>("move_group_name", "arm");
     move_group_name_ = this->get_parameter("move_group_name").as_string();
@@ -34,7 +35,9 @@ protected:
 
 int main(int argc, char **argv) {
   rclcpp::init(argc, argv);
-  auto moveit_interface_node = std::make_shared<MoveItInterfaceNode>();
+  auto moveit_interface_node = std::make_shared<MoveItInterfaceNode>(
+      "moveit_interface_node",
+      rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true));
   if (!moveit_interface_node->init()) {
     throw std::runtime_error("Failed to initialize MoveItInterfaceNode");
   }
