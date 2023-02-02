@@ -19,4 +19,9 @@ install(
     DESTINATION lib/${PROJECT_NAME}
 )
 
+install(
+    PROGRAMS scripts/moveit_action.py
+    DESTINATION lib/${PROJECT_NAME}
+)
+
 ament_package()
