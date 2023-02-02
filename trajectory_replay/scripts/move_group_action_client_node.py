@@ -111,7 +111,7 @@ def main(args: List = None) -> None:
         "move_group_action_client_node"
     )
 
-    poses = load_poses("/tmp/traj/src/trajectory_replay/trajectory_replay/data.csv")
+    poses = load_poses("/tmp/traj/src/trajectory_replay/data.csv")
 
     # load list
     for pose in poses:
@@ -120,7 +120,6 @@ def main(args: List = None) -> None:
             orientation=Quaternion(x=pose[3], y=pose[4], z=pose[5], w=pose[6]),
         )
         future = move_group_action_client_node.send_goal_async(pose)
-        future.add_done_callback()
         rclpy.spin_until_future_complete(
             move_group_action_client_node, future
         )  # gets stuck for invalid goals

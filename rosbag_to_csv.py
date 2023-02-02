@@ -1,4 +1,5 @@
 import sqlite3
+import csv
 from typing import Any
 
 from rclpy.serialization import deserialize_message
@@ -37,8 +38,20 @@ if __name__ == "__main__":
     rosbag_reader = RosbagReader(
         "rosbag2_2023_02_01-11_21_54/rosbag2_2023_02_01-11_21_54_0.db3"
     )
-    timestamp, transform_stamped = rosbag_reader.get_data(
-        "/link_transform_publisher_node/link_transform"
-    )[0]
+    data = rosbag_reader.get_data("/link_transform_publisher_node/link_transform")
 
-    print(transform_stamped.transform)
+    with open("data.csv", "w") as f:
+        writer = csv.writer(f)
+        for timestamp, transform_stamped in data[::100]:
+            # to csv
+            writer.writerow(
+                [
+                    transform_stamped.transform.translation.x,
+                    transform_stamped.transform.translation.y,
+                    transform_stamped.transform.translation.z,
+                    transform_stamped.transform.rotation.x,
+                    transform_stamped.transform.rotation.y,
+                    transform_stamped.transform.rotation.z,
+                    transform_stamped.transform.rotation.w,
+                ]
+            )
