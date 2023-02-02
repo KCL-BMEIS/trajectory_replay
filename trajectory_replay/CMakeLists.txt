@@ -6,8 +6,10 @@ find_package(rclcpp REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 
 set(dependencies
-    rclcpp
+    geometry_msgs    
     moveit_ros_planning_interface
+    rclcpp
+    std_srvs
 )
 
 add_executable(moveit_interface_node moveit_interface_node.cpp)
@@ -20,8 +22,8 @@ install(
 )
 
 install(
-    PROGRAMS scripts/moveit_action.py
-    DESTINATION lib/${PROJECT_NAME}
+    DIRECTORY launch
+    DESTINATION share/${PROJECT_NAME}
 )
 
 ament_package()
