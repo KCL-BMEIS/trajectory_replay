@@ -24,6 +24,11 @@ install(
 )
 
 install(
+    PROGRAMS scripts/move_group_action_client_node.py
+    DESTINATION lib/${PROJECT_NAME}
+)
+
+install(
     DIRECTORY launch
     DESTINATION share/${PROJECT_NAME}
 )
