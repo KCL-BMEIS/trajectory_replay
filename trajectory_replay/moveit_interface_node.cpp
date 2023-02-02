@@ -53,8 +53,8 @@ protected:
   void pose_service_callback_(const trajectory_replay_msgs::srv::Pose::Request::SharedPtr request,
                               trajectory_replay_msgs::srv::Pose::Response::SharedPtr response) {
     this->move_group_interface_ptr_->setPoseTarget(request->target);
-    RCLCPP_INFO(this->get_logger(), "Executing target...");
-    auto ret = this->move_group_interface_ptr_->move();
+    RCLCPP_INFO(this->get_logger(), "Attempting asynchronous move...");
+    auto ret = this->move_group_interface_ptr_->asyncMove();
     if (ret != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
       std::stringstream ss;
       ss << "Failed to move move group " << move_group_name_ << " with error code "
