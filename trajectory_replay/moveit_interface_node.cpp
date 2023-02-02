@@ -1,11 +1,13 @@
 #include <memory>
+#include <sstream>
 #include <stdexcept>
 #include <string>
 
 #include "geometry_msgs/msg/pose.hpp"
 #include "moveit/move_group_interface/move_group_interface.h"
 #include "rclcpp/rclcpp.hpp"
-#include "std_srvs/srv/trigger.hpp"
+
+#include "trajectory_replay_msgs/srv/pose.hpp"
 
 class MoveItInterfaceNode : public rclcpp::Node {
 
@@ -21,9 +23,9 @@ public:
     max_acceleration_scaling_factor_ =
         this->get_parameter("max_acceleration_scaling_factor").as_double();
 
-    motion_service_ = this->create_service<std_srvs::srv::Trigger>(
-        "~/motion_service",
-        std::bind(&MoveItInterfaceNode::motion_service_callback_, this, std::placeholders::_1,
+    pose_service_ptr_ = this->create_service<trajectory_replay_msgs::srv::Pose>(
+        "~/pose_service",
+        std::bind(&MoveItInterfaceNode::pose_service_callback_, this, std::placeholders::_1,
                   std::placeholders::_2),
         rmw_qos_profile_system_default);
 
@@ -48,19 +50,29 @@ public:
   }
 
 protected:
-  void motion_service_callback_(const std_srvs::srv::Trigger::Request::SharedPtr,
-                                std_srvs::srv::Trigger::Response::SharedPtr response) {
-    RCLCPP_INFO(this->get_logger(), "Triggering motion!");
-    geometry_msgs::msg::Pose target;
-    target.position.z = 1.;
-    this->move_group_interface_ptr_->setPoseTarget(target);
-    this->move_group_interface_ptr_->move();
+  void pose_service_callback_(const trajectory_replay_msgs::srv::Pose::Request::SharedPtr request,
+                              trajectory_replay_msgs::srv::Pose::Response::SharedPtr response) {
+    this->move_group_interface_ptr_->setPoseTarget(request->target);
+    RCLCPP_INFO(this->get_logger(), "Executing target...");
+    auto ret = this->move_group_interface_ptr_->move();
+    if (ret != moveit::planning_interface::MoveItErrorCode::SUCCESS) {
+      std::stringstream ss;
+      ss << "Failed to move move group " << move_group_name_ << " with error code "
+         << std::to_string(ret.val);
+      response->message = ss.str();
+      response->success = false;
+      RCLCPP_ERROR(this->get_logger(), response->message);
+      return;
+    }
+    response->message = "Success";
+    response->success = true;
+    RCLCPP_INFO(this->get_logger(), response->message);
   }
 
   std::string move_group_name_;
   double max_velocity_scaling_factor_, max_acceleration_scaling_factor_;
   std::unique_ptr<moveit::planning_interface::MoveGroupInterface> move_group_interface_ptr_;
-  rclcpp::Service<std_srvs::srv::Trigger>::SharedPtr motion_service_;
+  rclcpp::Service<trajectory_replay_msgs::srv::Pose>::SharedPtr pose_service_ptr_;
 };
 
 int main(int argc, char **argv) {
