@@ -5,10 +5,10 @@ source /opt/ros/foxy/setup.bash
 ```
 Clone this
 ```shell
-mkdir -p trajectory_replay/ws && cd trajectory_replay/ws && \ 
-git clone git@github.com:KCL-BMEIS/trajectory_replay.git && cd ..
+mkdir -p trajectory_replay_ws/src && cd trajectory_replay_ws/src && \ 
+git clone https://github.com/KCL-BMEIS/trajectory_replay.git && cd ..
 ```
-clone dependencies
+Clone dependencies
 ```shell
 vcs import src < src/trajectory_replay/repos.yml
 ```
