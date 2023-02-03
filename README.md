@@ -14,7 +14,8 @@ vcs import src < src/trajectory_replay/repos.yml
 ```
 Build
 ```shell
-colcon build
+colcon build && \
+source install/setup.bash
 ```
 
 ## Record Trajectory
