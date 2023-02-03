@@ -5,7 +5,7 @@ source /opt/ros/foxy/setup.bash
 ```
 Clone this
 ```shell
-mkdir -p trajectory_replay_ws/src && cd trajectory_replay_ws/src && \ 
+mkdir -p trajectory_replay_ws/src && cd trajectory_replay_ws/src && \
 git clone https://github.com/KCL-BMEIS/trajectory_replay.git && cd ..
 ```
 Clone dependencies
