@@ -89,7 +89,7 @@ class MoveGroupActionClientNode(Node):
         )
         goal.request.group_name = self.move_group_name
         goal.request.max_acceleration_scaling_factor = 0.1
-        goal.request.max_velocity_scaling_factor = 0.1
+        goal.request.max_velocity_scaling_factor = 0.01
         goal.request.num_planning_attempts = 1
 
         return self.move_group_action_client.send_goal_async(goal)
@@ -111,7 +111,7 @@ def main(args: List = None) -> None:
         "move_group_action_client_node"
     )
 
-    poses = load_poses("/tmp/traj/src/trajectory_replay/data.csv")
+    poses = load_poses("/tmp/tr_ws/src/trajectory_replay/poses.csv")
 
     # load list
     for pose in poses:
