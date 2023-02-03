@@ -1,9 +1,9 @@
 #!/usr/bin/python3
 
+import csv
 import time
 from typing import List
 
-import numpy as np
 import rclpy
 from action_msgs.msg import GoalStatus
 from builtin_interfaces.msg import Duration
@@ -26,12 +26,19 @@ class JointTrajectoryClientNode(Node):
                     "joint_trajectory_server_name",
                     "/position_trajectory_controller/follow_joint_trajectory",
                 ),
+                (
+                    "seconds_from_start",
+                    10,
+                ),
             ],
         )
         self.joint_trajectory_server_name_ = (
             self.get_parameter("joint_trajectory_server_name")
             .get_parameter_value()
             .string_value
+        )
+        self.seconds_from_start = (
+            self.get_parameter("seconds_from_start").get_parameter_value().integer_value
         )
         self.joint_trajectory_client_ = ActionClient(
             self, FollowJointTrajectory, self.joint_trajectory_server_name_
@@ -66,7 +73,7 @@ class JointTrajectoryClientNode(Node):
         goal.trajectory.points.append(
             JointTrajectoryPoint(
                 positions=joint_state.position,
-                time_from_start=Duration(sec=1, nanosec=0),
+                time_from_start=Duration(sec=self.seconds_from_start, nanosec=0),
             )
         )
         self.joint_trajectory_goal_future_ = (
@@ -100,25 +107,28 @@ def blocking_camera_scan():
     print("Done")
 
 
+def load_joint_states(file: str) -> List[JointState]:
+    joint_states = []
+    with open(file, "r") as f:
+        reader = csv.DictReader(f)
+        joint_state = JointState()
+        for row in reader:
+            joint_state.name = list(row.keys())
+            joint_state.position = [float(xi) for xi in list(row.values())]
+            joint_states.append(joint_state)
+    return joint_states
+
+
 def main(args: List = None) -> None:
     rclpy.init(args=args)
     joint_trajectory_client_node = JointTrajectoryClientNode(
         "joint_trajectory_client_node"
     )
 
-    for _ in range(3):
-        joint_state = JointState(
-            name=[
-                "lbr_joint_0",
-                "lbr_joint_1",
-                "lbr_joint_2",
-                "lbr_joint_3",
-                "lbr_joint_4",
-                "lbr_joint_5",
-                "lbr_joint_6",
-            ],
-            position=[0.0] * 4 + (np.random.randn(3) * 0.1 - 0.05).tolist(),
-        )
+    joint_states = load_joint_states(
+        "/tmp/tr_ws/src/trajectory_replay/joint_states.csv"
+    )
+    for joint_state in joint_states:
         joint_trajectory_client_node.send_joint_state_goal_async(joint_state)
         while not joint_trajectory_client_node.is_done():
             time.sleep(0.1)
