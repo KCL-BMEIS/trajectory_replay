@@ -24,7 +24,9 @@ install(
 )
 
 install(
-    PROGRAMS scripts/move_group_action_client_node.py
+    PROGRAMS
+        scripts/move_group_action_client_node.py
+        scripts/joint_trajectory_client_node.py
     DESTINATION lib/${PROJECT_NAME}
 )
 
