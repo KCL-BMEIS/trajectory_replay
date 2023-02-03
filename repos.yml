@@ -7,7 +7,3 @@ repositories:
     url: https://github.com/KCL-BMEIS/lbr_fri_ros2_stack.git
     type: git
     version: foxy
-  trajectory_replay:
-    url: https://github.com/RViMLab/trajectory_replay.git
-    type: git
-    version: main
