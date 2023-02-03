@@ -38,11 +38,11 @@ if __name__ == "__main__":
     rosbag_reader = RosbagReader(
         "rosbag2_2023_02_01-11_21_54/rosbag2_2023_02_01-11_21_54_0.db3"
     )
-    data = rosbag_reader.get_data("/link_transform_publisher_node/link_transform")
+    poses = rosbag_reader.get_data("/link_transform_publisher_node/link_transform")
 
-    with open("data.csv", "w") as f:
+    with open("poses.csv", "w") as f:
         writer = csv.writer(f)
-        for timestamp, transform_stamped in data[::100]:
+        for timestamp, transform_stamped in poses[::100]:
             # to csv
             writer.writerow(
                 [
@@ -55,3 +55,10 @@ if __name__ == "__main__":
                     transform_stamped.transform.rotation.w,
                 ]
             )
+
+    joint_states = rosbag_reader.get_data("/joint_states")
+    with open("joint_states.csv", "w") as f:
+        writer = csv.writer(f)
+        writer.writerow(joint_states[0][1].name)
+        for timestamp, joint_state in joint_states[::100]:
+            writer.writerow(joint_state.position)
