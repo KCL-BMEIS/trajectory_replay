@@ -111,7 +111,7 @@ def main(args: List = None) -> None:
         "move_group_action_client_node"
     )
 
-    poses = load_poses("/tmp/tr_ws/src/trajectory_replay/poses.csv")
+    poses = load_poses("/tmp/trajectory_replay_ws/src/trajectory_replay/poses.csv")
 
     # load list
     for pose in poses:

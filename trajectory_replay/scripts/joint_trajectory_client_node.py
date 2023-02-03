@@ -73,6 +73,8 @@ class JointTrajectoryClientNode(Node):
         goal.trajectory.points.append(
             JointTrajectoryPoint(
                 positions=joint_state.position,
+                velocities=[0.]*len(joint_state.position),
+                accelerations=[0.]*len(joint_state.position),
                 time_from_start=Duration(sec=self.seconds_from_start, nanosec=0),
             )
         )
@@ -111,10 +113,10 @@ def load_joint_states(file: str) -> List[JointState]:
     joint_states = []
     with open(file, "r") as f:
         reader = csv.DictReader(f)
-        joint_state = JointState()
         for row in reader:
-            joint_state.name = list(row.keys())
-            joint_state.position = [float(xi) for xi in list(row.values())]
+            joint_state = JointState(
+                name=list(row.keys()), position=[float(xi) for xi in list(row.values())]
+            )
             joint_states.append(joint_state)
     return joint_states
 
@@ -126,7 +128,7 @@ def main(args: List = None) -> None:
     )
 
     joint_states = load_joint_states(
-        "/tmp/tr_ws/src/trajectory_replay/joint_states.csv"
+        "/tmp/trajectory_replay_ws/src/trajectory_replay/joint_states.csv"
     )
     for joint_state in joint_states:
         joint_trajectory_client_node.send_joint_state_goal_async(joint_state)
