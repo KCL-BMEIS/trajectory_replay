@@ -9,7 +9,9 @@ install(
 )
 
 install(
-  PROGRAMS scripts/link_transform_publisher_node.py
+  PROGRAMS
+    scripts/impedance_control_node.py
+    scripts/link_transform_publisher_node.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
