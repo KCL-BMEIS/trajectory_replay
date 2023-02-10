@@ -48,5 +48,5 @@ ros2 launch lbr_bringup lbr_bringup.launch.py model:=med7 sim:=false
 - Open another terminal and run
 ```shell
 source /home/c2/Desktop/trajectory_replay/install/setup.bash
-ros2 run trajectory_replay joint_trajectory_client_node.py
+ros2 launch trajectory_replay joint_trajectory_client_node.launch.py seconds_from_start:=1 # integer >= 1
 ```

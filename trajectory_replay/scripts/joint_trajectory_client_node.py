@@ -32,6 +32,7 @@ class JointTrajectoryClientNode(Node):
                 ),
             ],
         )
+        self.init_ = False
         self.joint_trajectory_server_name_ = (
             self.get_parameter("joint_trajectory_server_name")
             .get_parameter_value()
@@ -70,12 +71,16 @@ class JointTrajectoryClientNode(Node):
         goal = FollowJointTrajectory.Goal()
         goal.trajectory.header.stamp = self.get_clock().now().to_msg()
         goal.trajectory.joint_names = joint_state.name
+        seconds_from_start = self.seconds_from_start
+        if not self.init_:
+            seconds_from_start =10
+            self.init_ = True
         goal.trajectory.points.append(
             JointTrajectoryPoint(
                 positions=joint_state.position,
                 velocities=[0.]*len(joint_state.position),
                 accelerations=[0.]*len(joint_state.position),
-                time_from_start=Duration(sec=self.seconds_from_start, nanosec=0),
+                time_from_start=Duration(sec=seconds_from_start, nanosec=0),
             )
         )
         self.joint_trajectory_goal_future_ = (
