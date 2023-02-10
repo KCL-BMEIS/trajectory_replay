@@ -73,10 +73,17 @@ def generate_launch_description():
         arguments=["-d", rviz2_config],
     )
 
-    # admittance control noe
-    admittance_node = Node(
-        package="lbr_examples",
-        executable="admittance_control_node.py",
+    # # admittance control noe
+    # admittance_node = Node(
+    #     package="lbr_examples",
+    #     executable="admittance_control_node.py",
+    # )
+
+    # impedance control node
+    impedance_control_node = Node(
+        package="trajectory_recording",
+        executable="impedance_control_node.py",
+        output="screen",
     )
 
     # link transform publisher node
@@ -94,7 +101,8 @@ def generate_launch_description():
             joint_state_broadcaster_spawner,
             robot_state_publisher_node,
             rviz2_node,
-            admittance_node,
+            # admittance_node,
+            impedance_control_node,
             link_transform_publisher_node,
         ]
     )

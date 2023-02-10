@@ -28,7 +28,7 @@ class JointTrajectoryClientNode(Node):
                 ),
                 (
                     "seconds_from_start",
-                    10,
+                    1,
                 ),
             ],
         )
@@ -105,7 +105,7 @@ class JointTrajectoryClientNode(Node):
 
 def blocking_camera_scan():
     print("Scanning camera...")
-    time.sleep(1)
+    time.sleep(3)
     print("Done")
 
 
@@ -128,9 +128,9 @@ def main(args: List = None) -> None:
     )
 
     joint_states = load_joint_states(
-        "/tmp/trajectory_replay_ws/src/trajectory_replay/joint_states.csv"
+        "/home/c2/Desktop/trajectory_replay/ws/joint_states.csv"
     )
-    for joint_state in joint_states:
+    for joint_state in joint_states[::10]:
         joint_trajectory_client_node.send_joint_state_goal_async(joint_state)
         while not joint_trajectory_client_node.is_done():
             time.sleep(0.1)

@@ -1,0 +1,31 @@
+rosbag2_bagfile_information:
+  version: 4
+  storage_identifier: sqlite3
+  relative_file_paths:
+    - rosbag2_2023_02_10-15_17_57_0.db3
+  duration:
+    nanoseconds: 339326189358
+  starting_time:
+    nanoseconds_since_epoch: 1676042277593017608
+  message_count: 305283
+  topics_with_message_count:
+    - topic_metadata:
+        name: /link_transform_publisher_node/link_transform
+        type: geometry_msgs/msg/TransformStamped
+        serialization_format: cdr
+        offered_qos_profiles: "- history: 3\n  depth: 0\n  reliability: 1\n  durability: 1\n  deadline:\n    sec: 2147483647\n    nsec: 4294967295\n  lifespan:\n    sec: 2147483647\n    nsec: 4294967295\n  liveliness: 1\n  liveliness_lease_duration:\n    sec: 2147483647\n    nsec: 4294967295\n  avoid_ros_namespace_conventions: false"
+      message_count: 135682
+    - topic_metadata:
+        name: /joint_states
+        type: sensor_msgs/msg/JointState
+        serialization_format: cdr
+        offered_qos_profiles: ""
+      message_count: 135698
+    - topic_metadata:
+        name: /lbr_state
+        type: lbr_fri_msgs/msg/LBRState
+        serialization_format: cdr
+        offered_qos_profiles: ""
+      message_count: 33903
+  compression_format: ""
+  compression_mode: ""

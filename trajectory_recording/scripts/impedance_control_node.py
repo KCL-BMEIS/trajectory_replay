@@ -21,12 +21,12 @@ class ImpedanceControl(Node):
 
         lbr_command.joint_position = (
             np.array(lbr_state.measured_joint_position)
-            + 0.01
-            * np.where(
-                np.array(lbr_state.external_torque) > 4.0,
-                np.array(lbr_state.external_torque),
-                0.0,
-            )
+            # + 0.001
+            # * np.where(
+            #     np.array(lbr_state.external_torque) > 4.0,
+            #     np.array(lbr_state.external_torque),
+            #     0.0,
+            # )
         ).tolist()
 
         self.get_logger().info(f"comman:\n{lbr_command.joint_position}")
