@@ -1,7 +1,7 @@
 # Trajectory Replay
 Source ROS
 ```shell
-source /opt/ros/foxy/setup.bash
+source /opt/ros/humble/setup.bash
 ```
 Clone this
 ```shell
@@ -41,12 +41,12 @@ python rosbag_to_csv.py
 - Launch `LBRServer`. (10ms -> 172.31.1.148 -> POSITION_CONTROL -> POSITION)
 - Open terminal and run
 ```shell
-source /home/c2/Desktop/trajectory_replay/install/setup.bash
-ros2 launch lbr_bringup lbr_bringup.launch.py model:=med7 sim:=false
+source trajectory_replay/install/setup.bash
+ros2 launch lbr_bringup bringup.launch.py model:=med7 sim:=false
 ```
 - Put robot into AUT mode
 - Open another terminal and run
 ```shell
-source /home/c2/Desktop/trajectory_replay/install/setup.bash
+source trajectory_replay/install/setup.bash
 ros2 launch trajectory_replay joint_trajectory_client_node.launch.py seconds_from_start:=1 # integer >= 1
 ```
