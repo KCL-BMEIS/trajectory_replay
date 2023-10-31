@@ -13,7 +13,6 @@
   <test_depend>ament_lint_common</test_depend>
 
   <depend>geometry_msgs</depend>
-  <depend>moveit_ros_planning_interface</depend>
   <depend>rclcpp</depend>
   <depend>std_srvs</depend>
   <depend>trajectory_replay_msgs</depend>
