@@ -21,15 +21,15 @@ source install/setup.bash
 ## Record Trajectory
 - Launch the system
 ```shell
-ros2 launch trajectory_recording trajectory_recording.launch.py
+ros2 launch lbr_demos_fri_ros2_advanced_cpp admittance_control_node.launch.py model:=med7 # port_id:=[30200, 30201] (depends on configuration)
 ```
 - Start recording
 ```shell
-ros2 bag record /joint_states /link_transform_publisher_node/link_transform
+ros2 bag record /lbr/state
 ```
 - Convert trajectory to `.csv` file
 ```shell
-python rosbag_to_csv.py
+python rosbag_to_csv.py --rosbag_path <path_to_rosbag> --lbr_state_topic /lbr/state
 ```
 
 ## Play Trajectory
