@@ -1,5 +1,8 @@
-import sqlite3
+import argparse
 import csv
+import glob
+import os
+import sqlite3
 from typing import Any
 
 from rclpy.serialization import deserialize_message
@@ -34,31 +37,42 @@ class RosbagReader:
         ]
 
 
-if __name__ == "__main__":
-    rosbag_reader = RosbagReader(
-        "trajectory_replay/23_02_10_5_minutes_hand_guiding/rosbag2_2023_02_10-15_17_57_0.db3"
+def args_factory() -> argparse.Namespace:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--rosbag_path",
+        type=str,
+        required=True,
+        help="Script searches for .db3 file in <rosbag_path>.",
     )
-    poses = rosbag_reader.get_data("/link_transform_publisher_node/link_transform")
+    parser.add_argument(
+        "--lbr_state_topic",
+        type=str,
+        default="/lbr/state",
+        help="The topic name. Prefixed with robot name.",
+    )
 
-    with open("poses.csv", "w") as f:
-        writer = csv.writer(f)
-        for timestamp, transform_stamped in poses:
-            # to csv
-            writer.writerow(
-                [
-                    transform_stamped.transform.translation.x,
-                    transform_stamped.transform.translation.y,
-                    transform_stamped.transform.translation.z,
-                    transform_stamped.transform.rotation.x,
-                    transform_stamped.transform.rotation.y,
-                    transform_stamped.transform.rotation.z,
-                    transform_stamped.transform.rotation.w,
-                ]
-            )
+    return parser.parse_args()
 
-    joint_states = rosbag_reader.get_data("/joint_states")
-    with open("joint_states.csv", "w") as f:
+
+def main() -> None:
+    args = args_factory()
+    rosbag = glob.glob(os.path.join(args.rosbag_path, "*.db3"))
+    if len(rosbag) != 1:
+        raise RuntimeError(f"Expected only 1 rosbag, got {len(rosbag)}.")
+    rosbag = rosbag[0]
+    print(f"Opening rosbag from {rosbag}.")
+    rosbag_reader = RosbagReader(rosbag)
+
+    print(f"Reading data from topic: {args.lbr_state_topic}.")
+    lbr_states = rosbag_reader.get_data(args.lbr_state_topic)
+    joint_names = ["A1", "A2", "A3", "A4", "A5", "A6", "A7"]
+    with open("lbr_states.csv", "w") as f:
         writer = csv.writer(f)
-        writer.writerow(joint_states[0][1].name)
-        for timestamp, joint_state in joint_states:
-            writer.writerow(joint_state.position)
+        writer.writerow(joint_names)
+        for timestamp, lbr_state in lbr_states:
+            writer.writerow(lbr_state.measured_joint_position)
+
+
+if __name__ == "__main__":
+    main()
