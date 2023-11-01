@@ -42,7 +42,7 @@ python rosbag_to_csv.py --rosbag_path <path_to_rosbag> --lbr_state_topic /lbr/st
 - Open terminal and run
 ```shell
 source trajectory_replay/install/setup.bash
-ros2 launch lbr_bringup bringup.launch.py model:=med7 sim:=false
+ros2 launch lbr_bringup bringup.launch.py model:=med7 sim:=false # port_id:=[30200, 30201] (depends on configuration)
 ```
 - Put robot into AUT mode
 - Open another terminal and run

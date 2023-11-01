@@ -5,12 +5,10 @@ import time
 from typing import List
 
 import rclpy
-from action_msgs.msg import GoalStatus
 from builtin_interfaces.msg import Duration
 from control_msgs.action import FollowJointTrajectory
 from rclpy.action import ActionClient
 from rclpy.node import Node
-from rclpy.task import Future
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectoryPoint
 
@@ -24,7 +22,7 @@ class JointTrajectoryClientNode(Node):
             parameters=[
                 (
                     "joint_trajectory_server_name",
-                    "/position_trajectory_controller/follow_joint_trajectory",
+                    "position_trajectory_controller/follow_joint_trajectory",
                 ),
                 (
                     "seconds_from_start",
@@ -44,8 +42,6 @@ class JointTrajectoryClientNode(Node):
         self.joint_trajectory_client_ = ActionClient(
             self, FollowJointTrajectory, self.joint_trajectory_server_name_
         )
-        self.joint_trajectory_goal_future_ = None
-        self.joint_trajectory_result_future_ = None
 
         self.get_logger().info(
             f"Waiting for action server {self.joint_trajectory_server_name_}..."
@@ -59,53 +55,45 @@ class JointTrajectoryClientNode(Node):
         self.get_logger().info("Done")
         self.get_logger().info("JointTrajectoryClientNode has been started.")
 
-    @property
-    def joint_trajectory_goal_future(self) -> Future:
-        return self.joint_trajectory_goal_future_
-
-    @property
-    def joint_trajectory_result_future(self) -> Future:
-        return self.joint_trajectory_result_future_
-
-    def send_joint_state_goal_async(self, joint_state: JointState) -> bool:
-        goal = FollowJointTrajectory.Goal()
-        goal.trajectory.header.stamp = self.get_clock().now().to_msg()
-        goal.trajectory.joint_names = joint_state.name
+    def send_joint_state_goal(self, joint_state: JointState) -> bool:
         seconds_from_start = self.seconds_from_start
+        goal_sec_tolerance = 1
+        goal = FollowJointTrajectory.Goal()
+        goal.trajectory.joint_names = joint_state.name
+        goal.goal_time_tolerance.sec = goal_sec_tolerance
         if not self.init_:
-            seconds_from_start =10
+            seconds_from_start = 10
             self.init_ = True
         goal.trajectory.points.append(
             JointTrajectoryPoint(
                 positions=joint_state.position,
-                velocities=[0.]*len(joint_state.position),
-                accelerations=[0.]*len(joint_state.position),
+                velocities=[0.0] * len(joint_state.position),
+                accelerations=[0.0] * len(joint_state.position),
                 time_from_start=Duration(sec=seconds_from_start, nanosec=0),
             )
         )
-        self.joint_trajectory_goal_future_ = (
-            self.joint_trajectory_client_.send_goal_async(goal)
-        )
-        rclpy.spin_until_future_complete(self, self.joint_trajectory_goal_future_)
-        goal_handle = self.joint_trajectory_goal_future_.result()
-        if not goal_handle.accepted:
-            self.get_logger().error("Goal rejected :(")
-            return False
-        self.get_logger().info("Goal accepted :)")
-        self.joint_trajectory_result_future_ = goal_handle.get_result_async()
-        return True
+        goal_future = self.joint_trajectory_client_.send_goal_async(goal)
 
-    def is_done(self) -> bool:
-        if not self.joint_trajectory_result_future_:
-            return True
-        rclpy.spin_until_future_complete(self, self.joint_trajectory_result_future_)
+        rclpy.spin_until_future_complete(self, goal_future)
+        goal_handle = goal_future.result()
+        if not goal_handle.accepted:
+            self.get_logger().error("Goal was rejected by server.")
+            return
+        self.get_logger().info("Goal was accepted by server.")
+
+        # wait for result
+        result_future = goal_handle.get_result_async()
+        rclpy.spin_until_future_complete(
+            self, result_future, timeout_sec=seconds_from_start + goal_sec_tolerance
+        )
+
         if (
-            self.joint_trajectory_result_future_.result().status
-            == GoalStatus.STATUS_SUCCEEDED
+            result_future.result().result.error_code
+            != FollowJointTrajectory.Result.SUCCESSFUL
         ):
-            return True
-        else:
+            self.get_logger().error("Failed to execute joint trajectory.")
             return False
+        return True
 
 
 def blocking_camera_scan():
@@ -133,12 +121,12 @@ def main(args: List = None) -> None:
     )
 
     joint_states = load_joint_states(
-        "/home/c2/Desktop/trajectory_replay/ws/joint_states.csv"
+        "/home/charlie/projects/trajectory_replay_ws/src/trajectory_replay/lbr_states.csv"  # TODO: remove path
     )
-    for joint_state in joint_states[::10]:
-        joint_trajectory_client_node.send_joint_state_goal_async(joint_state)
-        while not joint_trajectory_client_node.is_done():
-            time.sleep(0.1)
+    for joint_state in joint_states[::100]:
+        joint_trajectory_client_node.get_logger().info(f"Goal: {joint_state}.")
+        if not joint_trajectory_client_node.send_joint_state_goal(joint_state):
+            raise RuntimeError("Failed to execute trajectory.")
 
         # scan camera
         blocking_camera_scan()
