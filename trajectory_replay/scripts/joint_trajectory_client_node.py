@@ -12,6 +12,7 @@ from rclpy.node import Node
 from sensor_msgs.msg import JointState
 from trajectory_msgs.msg import JointTrajectoryPoint
 
+import zmq
 
 class JointTrajectoryClientNode(Node):
     def __init__(self, node_name: str):
@@ -95,13 +96,6 @@ class JointTrajectoryClientNode(Node):
             return False
         return True
 
-
-def blocking_camera_scan():
-    print("Scanning camera...")
-    time.sleep(3)
-    print("Done")
-
-
 def load_joint_states(file: str) -> List[JointState]:
     joint_states = []
     with open(file, "r") as f:
@@ -114,7 +108,31 @@ def load_joint_states(file: str) -> List[JointState]:
     return joint_states
 
 
+
+
+
+
+
+class ScanServer():
+    
+    def __init__(self, ip):
+        self.ip = ip
+        self.context = zmq.Context()
+        self.socket = self.context.socket(zmq.REQ)
+        self.socket.connect(self.ip)
+        self.context
+        
+    def do_scan(self):
+        self.socket.send(b"UPDATE")
+        message = self.socket.recv()
+        if message != b"OK":
+            raise RuntimeError(message)
+        
+    def finish_scan(self):
+        self.socket.send(b"FINISH")
+
 def main(args: List = None) -> None:
+    
     rclpy.init(args=args)
     joint_trajectory_client_node = JointTrajectoryClientNode(
         "joint_trajectory_client_node"
@@ -123,14 +141,16 @@ def main(args: List = None) -> None:
     joint_states = load_joint_states(
         "/home/charlie/projects/trajectory_replay_ws/src/trajectory_replay/lbr_states.csv"  # TODO: remove path
     )
+    
+    scan_server = ScanServer("tcp://localhost:5555")
+
     for joint_state in joint_states[::100]:
         joint_trajectory_client_node.get_logger().info(f"Goal: {joint_state}.")
         if not joint_trajectory_client_node.send_joint_state_goal(joint_state):
             raise RuntimeError("Failed to execute trajectory.")
+        scan_server.do_scan()
 
-        # scan camera
-        blocking_camera_scan()
-
-
+    scan_server.finish_scan()
+    
 if __name__ == "__main__":
     main()
